@@ -21,4 +21,5 @@ return [
     'Discount' => 'Remise',
     'Remove a city' => 'Supprimer une ville',
     'Do you really want to remove this city: "%s"?' => 'Vraiment supprimer cette ville: "%s" ?',
+    'Cities list' => 'Liste des villes',
 ];
