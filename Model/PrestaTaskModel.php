@@ -80,6 +80,12 @@ class PrestaTaskModel extends Base {
         $this->save($task_id, $task);
     }
 
+    public function removeDiscount($task_id) {
+        $task = $this->load($task_id);
+        $task['discount'] = [];
+        $this->save($task_id, $task);
+    }
+
     public function addOffer_unchecked($task_id, $offer_id, $date, $start, $end, $uuid = null) {
         $task = $this->load($task_id);
         if (!isset($task["offers"])) {

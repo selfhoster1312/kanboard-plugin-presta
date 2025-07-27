@@ -37,7 +37,7 @@ class PrestaTaskController extends BaseController
         return $this->response->html($this->template->render('presta:task_presta/distance_fee', array(
             'task_id' => $task_id,
             'errors' => $errors,
-            'values' => array(),
+            'values' => [ 'distance_fee' => $this->prestaTaskModel->load($task_id)['distance_fee'] ?? null ],
         )));
     }
 
@@ -50,11 +50,17 @@ class PrestaTaskController extends BaseController
             if (!isset($postValues['discount_amount'])) {
                 $errors['discount_amount'] = [ "Amount not provided." ];
             } else if (!is_numeric($postValues['discount_amount'])) {
-                $errors['discount_fee'] = [ "Please provide a number for the amount" ];
+                $errors['discount_amount'] = [ "Please provide a number for the amount" ];
             }
 
             if (!isset($postValues['discount_reason']) || empty($postValues['discount_reason'])) {
                 $errors['discount_reason'] = [ "Please provide a reason for the discount" ];
+            }
+
+            // If both are unset, we just remove it that's not an error
+            if (count($errors) == 2) {
+                $this->prestaTaskModel->removeDiscount($task_id);
+                return $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id)), true);
             }
 
             if (empty($errors)) {
@@ -65,10 +71,15 @@ class PrestaTaskController extends BaseController
             }
         }
 
+        $presta_task = $this->prestaTaskModel->load($task_id);
+
         return $this->response->html($this->template->render('presta:task_presta/discount', array(
             'task_id' => $task_id,
             'errors' => $errors,
-            'values' => array(),
+            'values' => [
+                "discount_amount" => $presta_task['discount']['amount'] ?? null,
+                "discount_reason" => $presta_task['discount']['reason'] ?? null,
+            ],
         )));
     }
 
