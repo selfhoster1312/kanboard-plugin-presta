@@ -77,6 +77,10 @@ class Plugin extends Base
         // Add route for complete city management
         $this->route->addRoute('/presta/city', 'PrestaCityController', 'list', 'Presta');
         $this->route->addRoute('/presta/city/delete', 'PrestaCityController', 'delete', 'Presta');
+
+        // Add routes for distance fee / discount
+        $this->route->addRoute('/presta/distance_fee/:task_id', 'PrestaTaskController', 'distance_fee', 'Presta');
+        $this->route->addRoute('/presta/discount/:task_id', 'PrestaTaskController', 'discount', 'Presta');
     }
 
     public function populateTaskTemplate($task) {

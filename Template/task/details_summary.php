@@ -22,9 +22,11 @@
                     </li>
                     <li>
                         <strong><?= t('Distance fee') ?>:</strong> <?= $distance_fee ?>€
+                        <?= $this->modal->small('cog', null, 'PrestaTaskController', 'distance_fee', array('plugin' => 'Presta', 'task_id' => $task["id"])) ?>
                     </li>
                     <li>
                         <strong><?= t('Discount') ?>:</strong> <?= $discount['amount'] ?? 0 ?>€
+                        <?= $this->modal->small('cog', null, 'PrestaTaskController', 'discount', array('plugin' => 'Presta', 'task_id' => $task["id"])) ?>
 <?php if (isset($discount['reason'])) { ?>
                         <br>(<?= $discount['reason'] ?>)
 <?php } ?>

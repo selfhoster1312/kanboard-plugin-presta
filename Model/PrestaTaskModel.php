@@ -76,7 +76,7 @@ class PrestaTaskModel extends Base {
 
     public function setDiscount($task_id, $discount_amount, $discount_reason) {
         $task = $this->load($task_id);
-        $task['discount'] = [ 'amount' => $discount_amount, 'reason' => $discoun_reason ];
+        $task['discount'] = [ 'amount' => $discount_amount, 'reason' => $discount_reason ];
         $this->save($task_id, $task);
     }
 }

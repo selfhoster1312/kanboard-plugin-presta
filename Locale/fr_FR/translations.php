@@ -22,4 +22,8 @@ return [
     'Remove a city' => 'Supprimer une ville',
     'Do you really want to remove this city: "%s"?' => 'Vraiment supprimer cette ville: "%s" ?',
     'Cities list' => 'Liste des villes',
+    'Set the distance fee (€)' => 'Définir les frais kilométriques (€)',
+    'Set the discount (€)' => 'Définir la remise (€)',
+    'Discount amount' => 'Montant de la remise',
+    'Discount reason' => 'Raison de la remise',
 ];
