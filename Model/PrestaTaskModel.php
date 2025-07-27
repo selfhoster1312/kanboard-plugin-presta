@@ -79,4 +79,101 @@ class PrestaTaskModel extends Base {
         $task['discount'] = [ 'amount' => $discount_amount, 'reason' => $discount_reason ];
         $this->save($task_id, $task);
     }
+
+    public function addOffer_unchecked($task_id, $offer_id, $date, $start, $end, $uuid = null) {
+        $task = $this->load($task_id);
+        if (!isset($task["offers"])) {
+            $task['offers'] = [];
+        }
+
+        array_push(
+            $task['offers'],
+            [
+                'offer_id' => $offer_id,
+                'date' => $date,
+                'start' => $start,
+                'end' => $end,
+                'uuid' => $uuid ?? uniqid(),
+            ]
+        );
+        $this->save($task_id, $task);
+    }
+
+    // Returns arrays of offers split by offer type so they can be grouped
+    // eg. "Demi-journée" => [ OFFER_OBJECT, OFFER_OBJECT ]
+    public function getOffers($task_id) {
+        $task = $this->load($task_id);
+
+        $final_offers = [];
+        $available_offers = $this->prestaOfferModel->options();
+        foreach($task['offers'] as $offer) {
+            $key = $available_offers[$offer['offer_id']];
+            if (!isset($final_offers[$key])) {
+                $final_offers[$key] = [];
+            }
+            array_push($final_offers[$key], $offer);
+        }
+
+        return $final_offers;
+    }
+
+    // Returns calculated price with discount
+    public function totalPrice($task_id) {
+        $task = $this->load($task_id);
+        $total = 0;
+
+        foreach($task['offers'] as $offer) {
+            $offer_price = $this->prestaOfferModel->get($offer['offer_id'])['price'];
+            $total = $total + $offer_price;
+        }
+
+        if ($total == 0) {
+            return 0;
+        }
+
+        $total = $total + ($task['distance_fee'] ?? 0);
+        $total = $total - ($task['discount']['amount'] ?? 0);
+        return $total;
+    }
+
+    public function hasOfferUuid($task_id, $offer_uuid) {
+        $task = $this->load($task_id);
+        foreach($task['offers'] ?? [] as $offer) {
+            if ($offer['uuid'] == $offer_uuid) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getOfferByUuid($task_id, $offer_uuid) {
+        $task = $this->load($task_id);
+        foreach($task['offers'] ?? [] as $offer) {
+            if ($offer['uuid'] == $offer_uuid) {
+                return $offer;
+            }
+        }
+    }
+
+    public function removeOfferUuid($task_id, $offer_uuid) {
+        $task = $this->load($task_id);
+        foreach($task['offers'] ?? [] as $counter => $offer) {
+            if ($offer['uuid'] == $offer_uuid) {
+                $key = $counter;
+            }
+        }
+        if (!isset($key)) {
+            return;
+        }
+        unset($task['offers'][$key]);
+        $this->save($task_id, $task);
+    }
+
+    public function updateOfferByUuid($task_id, $offer_uuid, $offer_update)
+    {
+        $this->removeOfferUuid($task_id, $offer_uuid);
+        $this->addOffer_unchecked($task_id, $offer_update['id'], $offer_update['date'], $offer_update['start'], $offer_update['end'], $offer_uuid);
+        // $this->save($task_id, $task);
+    }
 }

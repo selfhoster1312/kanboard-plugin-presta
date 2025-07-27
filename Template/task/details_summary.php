@@ -30,44 +30,37 @@
 <?php if (isset($discount['reason'])) { ?>
                         <br>(<?= $discount['reason'] ?>)
 <?php } ?>
+                   <?= $this->hook->render('template:task:details:first-column', array('task' => $task)) ?>
                 </ul>
             </div>
             <div class="task-summary-column">
                 <ul class="no-bullet">
+                    <li><strong><?= t('Total price') ?>: <?= $total_price ?></strong></li>
+<?php if (!empty($offers)) { foreach ($offers as $short_name => $offers_list) { ?>
+                    <li><hr></li>
                     <li>
-                        <strong><?= t('Status:') ?></strong>
-                        <span>
-                        <?php if ($task['is_active'] == 1): ?>
-                            <?= t('open') ?>
-                        <?php else: ?>
-                            <?= t('closed') ?>
-                        <?php endif ?>
-                        </span>
+                        <strong>Presta: <?= $short_name ?></strong>
+                        <ul>
+    <?php foreach($offers_list as $offer) { ?>
+                            <li>
+                                <?= $this->modal->confirm('trash', null, 'PrestaOfferController', 'task_confirm', array('plugin' => 'Presta', 'task_id' => $task["id"], 'offer_uuid' => $offer['uuid'])) ?>
+                                <?= $this->modal->small('cog', null, 'PrestaOfferController', 'task_edit', array('plugin' => 'Presta', 'task_id' => $task["id"], 'offer_uuid' => $offer['uuid'])) ?>
+                                <strong><?= $offer['date'] ?></strong> (<?= $offer["start"] ?>-<?= $offer["end"] ?>)
+                            </li>
+    <?php } ?>
+                        </ul>
                     </li>
+<?php } } else { ?>
                     <li>
-                        <strong><?= t('Priority:') ?></strong> <span><?= $task['priority'] ?></span>
+                        <strong><?= t('No associated offer') ?></strong>
+                        <br><?= $this->modal->small('euro', t('Add an offer'), 'PrestaOfferController', 'select', array('plugin' => 'Presta', 'task_id' => $task['id'])) ?>
                     </li>
-                    <?php if (! empty($task['reference'])): ?>
-                        <li>
-                            <strong><?= t('Reference:') ?></strong> <span><?= $this->task->renderReference($task) ?></span>
-                        </li>
-                    <?php endif ?>
-                    <?php if (! empty($task['score'])): ?>
-                        <li>
-                            <strong><?= t('Complexity:') ?></strong> <span><?= $this->text->e($task['score']) ?></span>
-                        </li>
-                    <?php endif ?>
-
-                    <?= $this->hook->render('template:task:details:first-column', array('task' => $task)) ?>
+<?php } ?>
+                   <?= $this->hook->render('template:task:details:second-column', array('task' => $task)) ?>
                 </ul>
-            </div>            <div class="task-summary-column">
+            </div>
+            <div class="task-summary-column">
                 <ul class="no-bullet">
-                    <?php if ($task['date_due']): ?>
-                        <li>
-                            <strong><?= t('Due date:') ?></strong>
-                            <span><?= $this->dt->datetime($task['date_due']) ?></span>
-                        </li>
-                    <?php endif ?>
                     <li>
                         <strong><?= t('Created:') ?></strong>
                         <span><?= $this->dt->datetime($task['date_creation']) ?></span>
@@ -76,20 +69,8 @@
                         <strong><?= t('Modified:') ?></strong>
                         <span><?= $this->dt->datetime($task['date_modification']) ?></span>
                     </li>
-                    <?php if ($task['date_completed']): ?>
-                    <li>
-                        <strong><?= t('Completed:') ?></strong>
-                        <span><?= $this->dt->datetime($task['date_completed']) ?></span>
-                    </li>
-                    <?php endif ?>
-                    <?php if ($task['date_moved']): ?>
-                    <li>
-                        <strong><?= t('Moved:') ?></strong>
-                        <span><?= $this->dt->datetime($task['date_moved']) ?></span>
-                    </li>
-                    <?php endif ?>
 
-                    <?= $this->hook->render('template:task:details:fourth-column', array('task' => $task)) ?>
+                    <?= $this->hook->render('template:task:details:third-column', array('task' => $task)) ?>
                 </ul>
             </div>
         </div>

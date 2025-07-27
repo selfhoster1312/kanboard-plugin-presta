@@ -7,5 +7,8 @@
         <li <?= $this->app->checkMenuSelection('PrestaCityController', 'list', 'Presta') ?>>
             <?= $this->url->link(t('Cities'), 'PrestaCityController', 'list', [ 'plugin' => 'Presta' ]) ?>
         </li>
+        <li <?= $this->app->checkMenuSelection('PrestaOfferController', 'list', 'Presta') ?>>
+            <?= $this->url->link(t('Offers'), 'PrestaOfferController', 'list', [ 'plugin' => 'Presta' ]) ?>
+        </li>
     </ul>
 </div>

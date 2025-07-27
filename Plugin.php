@@ -54,6 +54,8 @@ class Plugin extends Base
                 "city" => $this->prestaTaskModel->getCity($task["id"]),
                 "distance_fee" => $this->prestaTaskModel->getDistanceFee($task["id"]),
                 "discount" => $this->prestaTaskModel->getDiscount($task["id"]),
+                "offers" => $this->prestaTaskModel->getOffers($task["id"]),
+                "total_price" => $this->prestaTaskModel->totalPrice($task["id"]),
             ];
         });
 
@@ -81,6 +83,15 @@ class Plugin extends Base
         // Add routes for distance fee / discount
         $this->route->addRoute('/presta/distance_fee/:task_id', 'PrestaTaskController', 'distance_fee', 'Presta');
         $this->route->addRoute('/presta/discount/:task_id', 'PrestaTaskController', 'discount', 'Presta');
+
+        // Add route for managing offers
+        $this->route->addRoute('/presta/offers', 'PrestaOfferController', 'list', 'Presta');
+        $this->route->addRoute('/presta/offers/create', 'PrestaOfferController', 'create', 'Presta');
+        $this->route->addRoute('/presta/offers/edit/:offer_id', 'PrestaOfferController', 'update', 'Presta');
+        $this->route->addRoute('/presta/offers/delete/:offer_id', 'PrestaOfferController', 'delete', 'Presta');
+        // Add routes for editing/deleting offers from task
+        $this->route->addRoute('/presta/offers/:task_id/delete/:offer_id', 'PrestaOfferController', 'task_delete');
+        $this->route->addRoute('/presta/offers/:task_id/edit/:offer_id', 'PrestaOfferController', 'task_update');
     }
 
     public function populateTaskTemplate($task) {
@@ -99,6 +110,7 @@ class Plugin extends Base
                 'PrestaCityModel',
                 'PrestaTaskModel',
                 'PrestaClientModel',
+                'PrestaOfferModel',
             ),
         );
     }

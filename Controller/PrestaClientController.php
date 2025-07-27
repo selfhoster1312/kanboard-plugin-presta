@@ -67,7 +67,7 @@ class PrestaClientController extends BaseController
         if (!isset($postValues["client_name"]) || empty($postValues["client_name"])) {
             $errors["client_name"] = [ "No name provided!" ];
         }
-        if (!isset($postValues["client_address"]) || empty($postValues["claddress_address"])) {
+        if (!isset($postValues["client_address"]) || empty($postValues["client_address"])) {
             $errors["client_address"] = [ "No address provided!" ];
         }
         
