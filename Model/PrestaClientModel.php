@@ -1,10 +1,12 @@
 <?php
 namespace Kanboard\Plugin\Presta\Model;
 
+use Kanboard\Core\Base;
+
 // define('PRESTA_CLIENTS', DATA_DIR.DIRECTORY_SEPARATOR.'presta'.DIRECTORY_SEPARATOR.'clients.json');
 define('PRESTA_CLIENTS', PRESTA_DIR.DIRECTORY_SEPARATOR.'clients.json');
 
-class PrestaClientModel {
+class PrestaClientModel extends Base {
     public $values = null;
     
     function load() {

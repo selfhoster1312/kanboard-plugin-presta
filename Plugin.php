@@ -45,8 +45,17 @@ class Plugin extends Base
             }
         );
 
-        // Improved detailed task view
+        // Improved detailed task view. Requires extra context below.
         $this->template->setTemplateOverride('task/details', 'presta:task/details');
+        // Extra context for task details view.
+        $this->template->hook->attachCallable('template:task:details:top', 'presta:task/details_summary', function ($task) {
+            return [
+                "client" => $this->prestaTaskModel->getClient($task["id"]),
+                "city" => $this->prestaTaskModel->getCity($task["id"]),
+                "distance_fee" => $this->prestaTaskModel->getDistanceFee($task["id"]),
+                "discount" => $this->prestaTaskModel->getDiscount($task["id"]),
+            ];
+        });
 
         // Add link to Presta plugin in user drop down menu
         // TODO: make Presta overview page instead of going to clients
@@ -60,6 +69,34 @@ class Plugin extends Base
         $this->route->addRoute('/presta/client', 'PrestaClientController', 'list', 'Presta');
         $this->route->addRoute('/presta/client/edit', 'PrestaClientController', 'edit', 'Presta');
         $this->route->addRoute('/presta/client/delete', 'PrestaClientController', 'delete', 'Presta');
+
+        // Add route for task-based modal city management
+        $this->route->addRoute('/presta/city/:task_id', 'PrestaCityController', 'select', 'Presta');
+        $this->route->addRoute('/presta/city/:task_id/create', 'PrestaCityController', 'create', 'Presta');
+
+        // Add route for complete city management
+        $this->route->addRoute('/presta/city', 'PrestaCityController', 'list', 'Presta');
+        $this->route->addRoute('/presta/city/delete', 'PrestaCityController', 'delete', 'Presta');
+    }
+
+    public function populateTaskTemplate($task) {
+        $client_id = $this->prestaTaskModel->getClient(task["id"]);
+        return [
+            // "client_id" => $client_id,
+            "client" => $this->prestaClientModel->getClient($client_id),
+            "city" => $this->prestaTaskModel->getCity($task["id"]),
+        ];
+    }
+
+    public function getClasses()
+    {
+        return array(
+            'Plugin\Presta\Model' => array(
+                'PrestaCityModel',
+                'PrestaTaskModel',
+                'PrestaClientModel',
+            ),
+        );
     }
 
     public function getCompatibleVersion()

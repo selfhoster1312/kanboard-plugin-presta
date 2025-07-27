@@ -1,4 +1,4 @@
-<b><?= $this->modal->small('plus', 'Créer un nouveau client', 'PrestaClientController', 'create', array('plugin' => 'Presta', 'task_id' => isset($task_id) ? $task_id : null)) ?></b>
+<b><?= $this->modal->small('plus', t('Create new client'), 'PrestaClientController', 'create', array('plugin' => 'Presta', 'task_id' => isset($task_id) ? $task_id : null)) ?></b>
 <?php
 // TODO: filter by city
 ?>

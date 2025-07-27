@@ -18,22 +18,21 @@ class PrestaClientController extends BaseController
         // TODO: CSRF validation
         // TODO: permissions
 
-        $clients = $this->getClients();
-        
         $task_id = $this->request->getIntegerParam("task_id");
 
         if ($this->request->isPost()) {
-            $this->selectClient($task_id, $clients);
+            $this->selectClient($task_id);
         } else {
             $this->response->html($this->template->render('presta:client/select', array(
-                'clients' => $clients,
+                'client_options' => $this->prestaClientModel->options(),
                 'task_id' => $task_id,
                 'errors' => $errors,
+                'values' => $values,
             )));
         }
     }
 
-    public function selectClient($task_id, $clients) {
+    public function selectClient($task_id) {
         $errors = [];
 
         $postValues = $this->request->getValues();
@@ -41,7 +40,7 @@ class PrestaClientController extends BaseController
             $errors["client_id"] = [ "No client selected!" ];
         } else {
             $client_id = $postValues["client_id"];
-            if (!$clients->has($client_id)) {
+            if (!$this->prestaClientModel->has($client_id)) {
                 $errors["client_id"] = [ "Client does not exist: $client_id" ];
             }
         }
@@ -49,19 +48,19 @@ class PrestaClientController extends BaseController
         // Return early if there were errors
         if (!empty($errors)) {
             $this->response->html($this->template->render('presta:client/select', array(
-                'clients' => $clients,
+                'client_options' => $this->prestaClientModel->options(),
                 'task_id' => $task_id,
                 'errors' => $errors,
+                'values' => $values,
             )));
         }
 
-        $task_model = new Presta\Model\PrestaTaskModel($task_id);
-        $task_model->setClient_unchecked($client_id);
+        $this->prestaTaskModel->setClientId_unchecked($task_id, $client_id);
         $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id)), true);
     }
 
     // Update an existing client
-    public function updateClient($client_id, $clients) {
+    public function updateClient($client_id) {
         $errors = [];
 
         $postValues = $this->request->getValues();
@@ -74,24 +73,25 @@ class PrestaClientController extends BaseController
         
         // Return early if there were errors
         if (!empty($errors)) {
-            $client = $clients->get($client_id);
+            $client = $this->prestaClientModel->get($client_id);
             $this->response->html($this->template->render('presta:client/edit', array(
                 'client_id' => $client_id,
                 'client_name' => $client["name"],
                 'client_address' => $client["address"],
                 'errors' => $errors,
+                'values' => $values,
             )));
         }
 
         $client_name = $postValues["client_name"];
         $client_address = $postValues["client_address"];
 
-        $clients->update($client_id, $client_name, $client_address);
+        $this->prestaClientModel->update($client_id, $client_name, $client_address);
         $this->response->redirect($this->helper->url->to('PrestaClientController', 'list', [ 'plugin' => 'Presta' ]), true);
     }
 
     // Create a new client from form
-    public function createClient($task_id, $clients) {
+    public function createClient($task_id) {
         $errors = [];
 
         $postValues = $this->request->getValues();
@@ -105,7 +105,6 @@ class PrestaClientController extends BaseController
         // Return early if there were errors
         if (!empty($errors)) {
             $this->response->html($this->template->render('presta:client/create', array(
-                'clients' => $clients,
                 'task_id' => $task_id,
                 'errors' => $errors,
             )));
@@ -114,12 +113,11 @@ class PrestaClientController extends BaseController
         $client_name = $postValues["client_name"];
         $client_address = $postValues["client_address"];
 
-        $client_id = $clients->create($client_name, $client_address);
+        $client_id = $this->prestaClientModel->create($client_name, $client_address);
 
         if ($task_id != null) {
             // In a task edition context, redirect to the task
-            $task_model = new Presta\Model\PrestaTaskModel($task_id);
-            $task_model->setClient_unchecked($client_id);
+            $this->prestaTaskModel->setClientId_unchecked($task_id, $client_id);
             $this->response->redirect($this->helper->url->to('TaskViewController', 'show', array('task_id' => $task_id)), true);
         } else {
             // No task edition context, redirect to the clients list
@@ -131,49 +129,48 @@ class PrestaClientController extends BaseController
     {
         // TODO: CSRF validation
         // TODO: permissions
-        $clients = $this->getClients();;
         $task_id = $this->request->getIntegerParam("task_id");
 
         if ($this->request->isPost()) {
-            $this->createClient($task_id, $clients);
+            $this->createClient($task_id);
         } else {
             $this->response->html($this->template->render('presta:client/create', array(
-                'clients' => $clients,
+                'clients' => $this->prestaClientModel->list(),
                 'task_id' => $task_id,
                 'errors' => $errors,
+                'values' => $values,
             )));
         }
     }
 
     public function list(array $values = array(), array $errors = array())
     {
-        $clients = $this->getClients();
-
         $this->response->html($this->helper->layout->sublayout('presta:layout/layout', 'presta:layout/sidebar', 'presta:client/list', array(
             'title' => 'Presta',
-            'clients' => $clients->list(),
+            'clients' => $this->prestaClientModel->list(),
             'errors' => $errors,
+            'values' => $values,
         )));
     }
 
     public function edit(array $values = array(), array $errors = array())
     {
         $client_id = $this->request->getIntegerParam('client_id');
-        $clients = $this->getClients();;
-        $client = $clients->get($client_id);
+        $client = $this->prestaClientModel->get($client_id);
 
         if ($client == null) {
             $this->response->html("No such client ID $client_id");
         }
 
         if ($this->request->isPost()) {
-            $this->updateClient($client_id, $clients);
+            $this->updateClient($client_id);
         } else {
             $this->response->html($this->template->render('presta:client/edit', array(
                 'client_id' => $client_id,
                 'client_name' => $client["name"],
                 'client_address' => $client["address"],
                 'errors' => $errors,
+                'values' => $values,
             )));
         }
     }
@@ -182,9 +179,7 @@ class PrestaClientController extends BaseController
     public function confirm()
     {
         $client_id = $this->request->getStringParam('client_id');
-        $clients = $this->getClients();
-
-        $client = $clients->get($client_id);
+        $client = $this->prestaClientModel->get($client_id);
         if ($client == null) {
             $this->response->redirect($this->helper->url->to('PrestaClientController', 'list', [ 'plugin' => 'Presta' ]));
         }
@@ -200,15 +195,9 @@ class PrestaClientController extends BaseController
     {
         $this->checkCSRFParam();
         $client_id = $this->request->getStringParam('client_id');
-        $clients = $this->getClients();
-
-        $clients->remove($client_id);
+        $this->prestaClientModel->remove($client_id);
         $this->flash->success('Client removed successfully.');
         $this->response->redirect($this->helper->url->to('PrestaClientController', 'list', [ 'plugin' => 'Presta' ]));
-    }
-
-    public function getClients() {
-        return new Presta\Model\PrestaClientModel();
     }
 }
 

@@ -6,7 +6,7 @@
 <b><?= t("Choose an existing client") ?></b>
 <form method="post" action="<?= $this->url->href('PrestaClientController', 'select', array('plugin' => 'Presta', 'task_id' => $task_id)) ?>" autocomplete="off">
     <?= $this->form->csrf() ?>
-    <?= $this->form->select('client_id', $clients->options(), array(), $errors ? $errors : array()) ?>
+    <?= $this->form->select('client_id', $client_options, array(), $errors ? $errors : array()) ?>
     <?= $this->modal->submitButtons() ?>
 </form>
 <hr>

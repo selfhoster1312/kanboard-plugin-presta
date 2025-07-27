@@ -68,5 +68,8 @@
         <li>
             <?= $this->modal->small('user', t('Client'), 'PrestaClientController', 'select', array('plugin' => 'Presta', 'task_id' => $task['id'])) ?>
         </li>
+        <li>
+            <?= $this->modal->small('home', t('City'), 'PrestaCityController', 'select', array('plugin' => 'Presta', 'task_id' => $task['id'])) ?>
+        </li>
     </ul>
 </div>
